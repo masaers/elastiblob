@@ -4,10 +4,18 @@
 
 extern inline int elastiblob_valid(const struct elastiblob* blob);
 
-void elastiblob_init(struct elastiblob* blob, size_t reserved_size) {
-  blob->size = 0;
-  blob->max_size = reserved_size;
-  blob->buffer = (char*)malloc(reserved_size);
+int elastiblob_init(struct elastiblob* blob, size_t reserved_size) {
+  if (reserved_size == 0) {
+    blob->size = 0;
+    blob->max_size = 0;
+    blob->buffer = NULL;
+    return 1;
+  } else {
+    blob->size = 0;
+    blob->max_size = reserved_size;
+    blob->buffer = (char*)malloc(reserved_size);
+    return elastiblob_valid(blob);
+  }
 }
 
 struct elastiblob* make_elastiblob(size_t reserved_size) {

@@ -21,7 +21,7 @@ struct elastiblob {
   Initializes a pointer to an elastic blob. If the pointer points
   to an existing elastic blob, that blob is freed.
  */
-void elastiblob_init(struct elastiblob* blob, size_t reserved_size);
+int elastiblob_init(struct elastiblob* blob, size_t reserved_size);
 
 /**
 	Creates an elastic blob on the heap. It is up to the caller
