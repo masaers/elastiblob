@@ -18,11 +18,50 @@ struct elastiblob* make_elastiblob(size_t reserved_size) {
   return result;
 }
 
+int elastiblob_clone(struct elastiblob* to, const struct elastiblob* from) {
+  int result = 1;
+  if (to == NULL || from == NULL) {
+    return 0;
+  }
+  if (elastiblob_valid(from)) {
+    if (elastiblob_valid(to)) {
+      if (! elastiblob_reserve(to, from->size)) {
+        return 0;
+      }
+    } else {
+      elastiblob_init(to, from->size);
+      if (! elastiblob_valid(to)) {
+        return 0;
+      }
+    }
+    memcpy(to->buffer, from->buffer, from->size);
+  } else {
+    if (elastiblob_valid(to)) {
+      elastiblob_free(to);
+    }
+  }
+  return 1;
+}
+
+void elastiblob_swap(struct elastiblob* a, struct elastiblob* b) {
+  struct elastiblob temp;
+  temp.buffer = a->buffer;
+  temp.size = a->size;
+  temp.max_size = a->max_size;
+  a->buffer = b->buffer;
+  a->size = b->size;
+  a->max_size = b->max_size;
+  b->buffer = temp.buffer;
+  b->size = temp.size;
+  b->max_size = temp.max_size;
+}
+
 void elastiblob_free(struct elastiblob* blob) {
   if (elastiblob_valid(blob)) {
     blob->size = 0;
     blob->max_size = 0;
     free(blob->buffer);
+    blob->buffer = NULL;
   }
 }
 

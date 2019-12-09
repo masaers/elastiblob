@@ -30,6 +30,17 @@ void elastiblob_init(struct elastiblob* blob, size_t reserved_size);
 struct elastiblob* make_elastiblob(size_t reserved_size);
 
 /**
+  Clones an existing elastiblob into another existing elastiblob.
+ */
+int elastiblob_clone(struct elastiblob* to, const struct elastiblob* from);
+
+/**
+  Swaps the content of two elastiblob pointers. Passing null pointers lead
+  to undefined behaviour.
+ */
+void elastiblob_swap(struct elastiblob* a, struct elastiblob* b);
+
+/**
   Frees the data held by an elastic blob.
  */
 void elastiblob_free(struct elastiblob* blob);
