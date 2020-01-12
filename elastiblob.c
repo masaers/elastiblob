@@ -2,7 +2,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-extern inline int elastiblob_valid(const struct elastiblob* blob);
+extern inline       void  elastiblob_clear(struct elastiblob* blob);
+extern inline       int   elastiblob_valid(const struct elastiblob* blob);
+extern inline const char* elastiblob_str(struct elastiblob* blob);
+extern inline       int   elastiblob_append_str(struct elastiblob* blob, const char* str);
+extern inline       int   elastiblob_available(const struct elastiblob* blob);
+extern inline       char* elastiblob_append_buffer(struct elastiblob* blob);
+extern inline       void  elastiblob_appended(struct elastiblob* blob, int bytes);
+extern inline       char  elastiblob_endswith(const struct elastiblob* blob);
+extern inline       void  elastiblob_rewind(struct elastiblob* blob, int bytes);
+
 
 int elastiblob_init(struct elastiblob* blob, size_t reserved_size) {
   if (reserved_size == 0) {
@@ -73,36 +82,19 @@ void elastiblob_free(struct elastiblob* blob) {
   }
 }
 
-int elastiblob_valid(const struct elastiblob* blob) {
-  return blob->buffer == NULL ? 0 : 1;
-}
-
-void elastiblob_clear(struct elastiblob* blob) {
-  blob->size = 0;
-}
-
-const char* elastiblob_str(struct elastiblob* blob) {
-  ((char*)blob->buffer)[blob->size] = '\0';
-  return (const char*)blob->buffer;
-}
-
 int elastiblob_append(struct elastiblob* blob, const void* content, size_t content_size) {
   int result = elastiblob_reserve(blob, content_size + 1);
   if (result) {
-    memcpy((char*)blob->buffer + blob->size, content, content_size);
+    memcpy(blob->buffer + blob->size, content, content_size);
     blob->size = blob->size + content_size;
   }
   return result;
 }
 
-int elastiblob_append_str(struct elastiblob* blob, const char* str) {
-  return elastiblob_append(blob, (void*)str, strlen(str));
-}
-
 int elastiblob_append_chr(struct elastiblob* blob, const char chr) {
   int result = elastiblob_reserve(blob, blob->size + 1);
   if (result) {
-    ((char*)blob->buffer)[blob->size++] = chr;
+    (blob->buffer)[blob->size++] = chr;
   }
   return result;
 }

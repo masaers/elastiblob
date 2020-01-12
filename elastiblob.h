@@ -48,13 +48,17 @@ void elastiblob_free(struct elastiblob* blob);
 /**
 	Returns non-null if blob is in a valid state.
  */
-int elastiblob_valid(const struct elastiblob* blob);
+inline int elastiblob_valid(const struct elastiblob* blob) {
+  return blob->buffer == NULL ? 0 : 1;
+}
 
 /**
 	Clears the content of the blob.
 	Does not actually free any allocated memory.
  */
-void elastiblob_clear(struct elastiblob* blob);
+inline void elastiblob_clear(struct elastiblob* blob) {
+  blob->size = 0;
+}
 
 /**
   Returns a string representation of the content of the blob.
@@ -66,7 +70,10 @@ void elastiblob_clear(struct elastiblob* blob);
   This function represents plenty of rope to shoot yourself in
   the foot with, caution is adviced.
  */
-const char* elastiblob_str(struct elastiblob* blob);
+inline const char* elastiblob_str(struct elastiblob* blob) {
+  blob->buffer[blob->size] = '\0';
+  return (const char*)blob->buffer;
+}
 
 /**
   Appends data to an existing elastic blob.
@@ -76,7 +83,9 @@ int elastiblob_append(struct elastiblob* blob, const void* content, size_t conte
 /**
 	Appends a string to an existing elastic blob.
  */
-int elastiblob_append_str(struct elastiblob* blob, const char* str);
+inline int elastiblob_append_str(struct elastiblob* blob, const char* str) {
+  return elastiblob_append(blob, (const void*)str, strlen(str));
+}
 
 /**
   Append a character to an existing elastic blob.
@@ -87,6 +96,40 @@ int elastiblob_append_chr(struct elastiblob* blob, const char chr);
 	Ensures that an elastic blob can hold at least size bytes.
  */
 int elastiblob_reserve(struct elastiblob* blob, size_t size);
+
+/**
+  Returns the number of bytes that can be safely written to
+  the elastic blob before it has to resize.
+ */
+inline int elastiblob_available(const struct elastiblob* blob) {
+  return blob->max_size - blob->size;
+}
+
+/**
+  Returns the blob as a charcter buffer that can be written to.
+  Writing mor ethan elastiblob_available bytes to the buffer
+  results in undefined behavior.
+ */
+inline char* elastiblob_append_buffer(struct elastiblob* blob) {
+  return blob->buffer + blob->size;
+}
+
+
+/**
+  Updates the elastic blob following writes to the buffer returned
+  by elastiblob_append_buffer.
+ */
+inline void elastiblob_appended(struct elastiblob* blob, int bytes) {
+  blob->size += bytes;
+}
+
+inline char elastiblob_endswith(const struct elastiblob* blob) {
+  return blob->buffer[blob->size - 1];
+}
+
+inline void elastiblob_rewind(struct elastiblob* blob, int bytes) {
+  blob->size -= bytes;
+}
 
 
 #ifdef __cplusplus
